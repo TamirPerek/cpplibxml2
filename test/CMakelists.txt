@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.20)
+
+# Set the project name
+project(cpplibxml2_test)
+
+include(GoogleTest)
+
+# Enable testing
+enable_testing()
+
+# Add the test executable
+add_executable(${PROJECT_NAME} test.cpp)
+
+# Link GoogleTest and pthread
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE gtest 
+    PRIVATE gmock 
+    PRIVATE gtest_main
+    PRIVATE cpplibxml2
+    PRIVATE LibXml2::LibXml2
+)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} 
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/testData/example.xml ${CMAKE_CURRENT_BINARY_DIR}/testData/example.xml
+)
+
+# Add the test
+gtest_discover_tests(${PROJECT_NAME})

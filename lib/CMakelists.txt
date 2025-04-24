@@ -2,3 +2,4 @@
 include(FetchContent)
 
 add_subdirectory(libxml2)
+add_subdirectory(googletest)
