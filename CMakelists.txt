@@ -9,7 +9,7 @@ include(CheckLibraryExists)
 include(CheckSymbolExists)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_DEBUG_POSTFIX _d)
@@ -19,37 +19,38 @@ add_subdirectory(lib)
 include_directories(include)
 
 set(HEADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/cpplibxml2.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/cpplibxml2.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/errorTypes.hpp
 )
 set(MY_SOURCE_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 )
 
 # Add source files
 add_library(
-    ${PROJECT_NAME} 
-    STATIC
+        ${PROJECT_NAME}
+        STATIC
 )
 
 target_sources(
-    ${PROJECT_NAME} 
-    PRIVATE
-    ${MY_SOURCE_FILES}
-    PUBLIC
-    ${HEADER_FILES}
+        ${PROJECT_NAME}
+        PRIVATE
+        ${MY_SOURCE_FILES}
+        PUBLIC
+        ${HEADER_FILES}
 )
 
 # Include directories
 target_include_directories(
-    ${PROJECT_NAME} 
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${PROJECT_NAME}
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Link library to the executable
 target_link_libraries(
-    ${PROJECT_NAME} 
-    PUBLIC LibXml2::LibXml2
+        ${PROJECT_NAME}
+        PUBLIC LibXml2::LibXml2
 )
 
 add_subdirectory(test)
