@@ -55,6 +55,11 @@ target_link_libraries(
         PUBLIC LibXml2::LibXml2
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(STATUS "Adding Clang-specific compiler flags")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 add_subdirectory(test)
 
 include(cmake/CompilerWarnings.cmake)
