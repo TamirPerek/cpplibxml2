@@ -36,3 +36,6 @@ add_custom_command(
 
 # Add the test
 gtest_discover_tests(${PROJECT_NAME})
+
+include(${CMAKE_SOURCE_DIR}/cmake/CompilerWarnings.cmake)
+set_project_warnings(${PROJECT_NAME})
