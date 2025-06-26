@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.20)
 # Set the project name
 project(cpplibxml2_test)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
-
 include(GoogleTest)
 
 # Enable testing
@@ -26,6 +23,14 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE gtest_main
     PRIVATE cpplibxml2
     PRIVATE LibXml2::LibXml2
+)
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>
+)
+
+target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:-fsanitize=address>
 )
 
 add_custom_command(
