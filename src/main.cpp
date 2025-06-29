@@ -91,11 +91,25 @@ std::expected<Node, Error> Doc::root() const noexcept
 
     return Node{root};
 }
+std::expected<std::string, Error> Doc::dump(bool addWhiteSpaces, Format format) const noexcept
+{
+    if (!this->impl->doc)
+        return std::unexpected{Error{"Document is null."}};
+
+    xmlChar *buffer = nullptr;
+    int size = -1;
+    xmlDocDumpFormatMemoryEnc(this->impl->doc.get(), &buffer, &size, to_string(format).c_str(), addWhiteSpaces ? 1 : 0);
+    if (!buffer)
+        return std::unexpected{Error{"Failed to dump document."}};
+
+    std::string result(reinterpret_cast<const char *>(buffer), static_cast<std::string::size_type>(size));
+    return result;
+}
 
 Node::Node() : impl(std::make_unique<Impl>())
 {
 }
-Node::Node(xmlNodePtr in)  : impl(std::make_unique<Impl>())
+Node::Node(xmlNodePtr in) : impl(std::make_unique<Impl>())
 {
     this->impl->node = in;
 }
@@ -231,7 +245,8 @@ std::vector<std::pair<std::string_view, std::string_view>> Node::getProperties()
     std::vector<std::pair<std::string_view, std::string_view>> result;
     for (auto node = this->impl->node->properties; node; node = node->next)
     {
-        result.emplace_back(std::string_view{reinterpret_cast<const char *>(node->name)}, node->children ? reinterpret_cast<const char *>(node->children->content) : "");
+        result.emplace_back(std::string_view{reinterpret_cast<const char *>(node->name)},
+                            node->children ? reinterpret_cast<const char *>(node->children->content) : "");
     }
 
     return result;
@@ -265,5 +280,35 @@ std::expected<Node, Error> Node::addChild(std::string_view name) const noexcept
         return std::unexpected{Error{"Failed to add node."}};
 
     return Node{newNode};
+}
+
+void Node::addValue(std::string_view value) const
+{
+    if (!this->impl->node)
+        throw Error{"Node not found."};
+
+    const auto res = xmlNodeSetContent(this->impl->node, reinterpret_cast<const unsigned char *>(value.data()));
+    if (res == 1)
+        throw Error{"Failed to add value."};
+    if (res == -1)
+        throw Error{"Memory allocation to add this value failed"};
+}
+
+void Node::addNamespace(std::string_view prefix, std::string_view uri) const
+{
+    if (!this->impl->node)
+        throw Error{"Node not found."};
+    const auto ns = xmlNewNs(this->impl->node, reinterpret_cast<const unsigned char *>(uri.data()),
+                             reinterpret_cast<const unsigned char *>(prefix.data()));
+    if (!ns)
+        throw Error{"Failed to add namespace."};
+    xmlSetNs(this->impl->node, ns);
+}
+
+void Node::removeNamespace() const
+{
+    if (!this->impl->node)
+        throw Error{"Node not found."};
+    xmlSetNs(this->impl->node, nullptr);
 }
 } // namespace cpplibxml2

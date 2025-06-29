@@ -14,7 +14,8 @@ add_executable(${PROJECT_NAME}
         helper.hpp
         ParserOptionsTest.cpp
         ErrorTypesTest.cpp
-        NodeClassTest.cpp)
+        NodeClassTest.cpp
+        NodeNamespaceTest.cpp)
 
 # Link GoogleTest and pthread
 target_link_libraries(${PROJECT_NAME} 

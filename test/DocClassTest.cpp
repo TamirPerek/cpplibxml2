@@ -62,3 +62,33 @@ TEST(DocClass, parseRandomString) {
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document not parsed successfully.");
 }
+
+TEST(DocClass, dumpXML)
+{
+    constexpr auto orgXML = std::string_view{"<root><child>data</child></root>"};
+    const auto doc = cpplibxml2::Doc::parse(orgXML);
+    ASSERT_TRUE(doc);
+    const auto xml = doc.value().dump();
+    ASSERT_TRUE(xml);
+    ASSERT_STREQ(xml.value().data(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>data</child></root>\n");
+}
+
+TEST(DocClass, dumpFormatedXML)
+{
+    constexpr auto orgXML = std::string_view{"<root><child>data</child></root>"};
+    const auto doc = cpplibxml2::Doc::parse(orgXML);
+    ASSERT_TRUE(doc);
+    const auto xml = doc.value().dump(true);
+    ASSERT_TRUE(xml);
+    ASSERT_STREQ(xml.value().data(), "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <child>data</child>\n</root>\n");
+}
+
+TEST(DocClass, dumpFormatedXMLWithSpecialCharsToISO)
+{
+    constexpr auto orgXML = std::string_view{"<root><child>你好, мир, مرحبا, नमस्ते 🌍, äöüßÄÖÜ€</child></root>"};
+    const auto doc = cpplibxml2::Doc::parse(orgXML);
+    ASSERT_TRUE(doc);
+    const auto xml = doc.value().dump(true, cpplibxml2::Format::ISO_8859_1);
+    ASSERT_TRUE(xml);
+    ASSERT_STREQ(xml.value().data(), "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root>\n  <child>&#20320;&#22909;, &#1084;&#1080;&#1088;, &#1605;&#1585;&#1581;&#1576;&#1575;, &#2344;&#2350;&#2360;&#2381;&#2340;&#2375; &#127757;, \xE4\xF6\xFC\xDF\xC4\xD6\xDC&#8364;</child>\n</root>\n");
+}

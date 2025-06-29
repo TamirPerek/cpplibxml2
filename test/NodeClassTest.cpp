@@ -183,3 +183,17 @@ TEST(NodeClass, AddNode)
     ASSERT_TRUE(priceNode);
     EXPECT_STREQ(priceNode.value().name().data(), "price");
 }
+
+TEST(NodeClass, AddValueToNode)
+{
+    const auto DocRes = cpplibxml2::Doc::parse(R"(<?xml version="1.0"?><catalog></catalog>)");
+    ASSERT_TRUE(DocRes);
+    const auto Root = DocRes.value().root();
+    ASSERT_TRUE(Root);
+    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    const auto newNode = Root.value().addChild("price");
+    ASSERT_TRUE(newNode);
+    EXPECT_STREQ(newNode.value().name().data(), "price");
+    newNode.value().addValue("Hello World!");
+    EXPECT_STREQ(newNode.value().value().c_str(), "Hello World!");
+}
