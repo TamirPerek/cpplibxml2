@@ -114,7 +114,7 @@ TEST(NodeClass, GetValueOfEmptyNode)
 
 TEST(NodeClass, GetProperty)
 {
-    const auto DocRes = cpplibxml2::Doc::parse(R"(<?xml version="1.0"?><catalog id="Hello" class="World"></catalog>)");
+    const auto DocRes = cpplibxml2::Doc::parse(R"(<?xml version="1.0"?><catalog id="Hello" class="World" empty=""></catalog>)");
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
@@ -126,6 +126,12 @@ TEST(NodeClass, GetProperty)
     ASSERT_TRUE(classRes);
     EXPECT_STREQ(classRes.value().first.data(), "class");
     EXPECT_STREQ(classRes.value().second.data(), "World");
+    auto notAProperty = Root.value().findProperty("Hello");
+    EXPECT_FALSE(notAProperty);
+    auto emptyProperty = Root.value().findProperty("empty");
+    ASSERT_TRUE(emptyProperty);
+    EXPECT_STREQ(emptyProperty.value().first.data(), "empty");
+    EXPECT_STREQ(emptyProperty.value().second.data(), "");
 }
 
 TEST(NodeClass, GetProperties)

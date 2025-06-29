@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <vector>
 
+// Forward declaration
 typedef struct _xmlNode xmlNode;
 typedef xmlNode *xmlNodePtr;
 
