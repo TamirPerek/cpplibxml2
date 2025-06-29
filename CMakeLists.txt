@@ -38,11 +38,6 @@ message(STATUS "CXX compiler ID: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CXX compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "CXX compiler: ${CMAKE_CXX_COMPILER}")
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    message(STATUS "Adding Clang-specific compiler flags")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif()
-
 target_sources(
         ${PROJECT_NAME}
         PRIVATE
