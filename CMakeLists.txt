@@ -67,6 +67,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_Warnings)
 
 if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying libxml2.dll..."
+            COMMAND ${CMAKE_COMMAND} -E echo "From: $<TARGET_FILE:LibXml2::LibXml2>"
+            COMMAND ${CMAKE_COMMAND} -E echo "To:   $<TARGET_FILE_DIR:${PROJECT_NAME}>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:LibXml2::LibXml2>
             $<TARGET_FILE_DIR:${PROJECT_NAME}>
