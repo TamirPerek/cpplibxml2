@@ -23,7 +23,7 @@ set(HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/errorTypes.hpp
 )
 set(MY_SOURCE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/cpplibxml2.cpp
 )
 
 add_library(${PROJECT_NAME}_Warnings INTERFACE)
