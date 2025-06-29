@@ -33,14 +33,14 @@ enum class ParserOptions : int
     NoCData = 1 << 14,        /* merge CDATA as text nodes */
     NoXIncludeNode = 1 << 15, /* do not generate XINCLUDE START/END nodes */
     Compact = 1 << 16,        /* compact small text nodes; no modification of
-                                           the tree allowed afterwards (will possibly
+                                           the tree allowed afterward (will possibly
                                            crash if you try to modify the tree) */
     Old10 = 1 << 17,          /* parse using XML-1.0 before update 5 */
     NoBaseFix = 1 << 18,      /* do not fixup XINCLUDE xml:base uris */
     Huge = 1 << 19,           /* relax any hardcoded limit from the parser */
     OldSax = 1 << 20,         /* parse using SAX2 interface before 2.7.0 */
     IgnoreEnc = 1 << 21,      /* ignore internal document encoding hint */
-    BigLines = 1 << 22,       /* Store big lines numbers in text PSVI field since 2.13.0 */
+    BigLines = 1 << 22,       /* Store big lines numbers in the text PSVI field since 2.13.0 */
     NoXXE = 1 << 23,          /* disable loading of external content since 2.14.0 */
     Unzip = 1 << 24,          /* allow compressed content */
     NoSysCatalog = 1 << 25,   /* disable global system catalog */
@@ -87,8 +87,17 @@ enum class Format
     ASCII
 };
 
-[[nodiscard]] std::string to_string(Format format);
-inline std::string to_string(Format format)
+/**
+ * Converts a Format enum value to its corresponding string representation.
+ *
+ * This function translates the given Format enum value into a readable
+ * string that represents the encoding standard.
+ *
+ * @param format The Format enum value to be converted
+ * @return A string representing the encoding ("UTF-8", "UTF-16", "ISO-8859-1", or "ASCII")
+ * @note For Format::UTF_8 or unknown values, "UTF-8" is returned by default
+ */
+[[nodiscard]] inline std::string to_string(const Format format)
 {
     switch (format)
     {
@@ -135,6 +144,18 @@ class Doc
 
     [[nodiscard]] std::expected<std::string, Error> dump(bool addWhiteSpaces = false,
                                                          Format format = Format::UTF_8) const noexcept;
+
+    // TODO: Consider adding a function to write the XML document directly to a file in the future.
+    /**
+     * Writes the XML document to the given file path.
+     *
+     * @param path The file system path where the document should be saved
+     * @param addWhiteSpaces If true, adds indentation and line breaks
+     * @param format Encoding format (UTF-8 by default)
+     * @return Success or Error
+     */
+    [[nodiscard]] std::expected<void, Error> saveToFile(const std::filesystem::path &path, bool addWhiteSpaces = false,
+                                                        Format format = Format::UTF_8) const noexcept;
 };
 
 class Node
