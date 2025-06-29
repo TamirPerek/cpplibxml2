@@ -69,3 +69,11 @@ add_subdirectory(test)
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(${PROJECT_NAME}_Warnings)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${PROJECT_NAME}_Warnings)
+
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:LibXml2::LibXml2>
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+endif()
