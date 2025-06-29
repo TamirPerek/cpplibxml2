@@ -2,10 +2,9 @@
 #include "helper.hpp"
 #include <cpplibxml2.hpp>
 
-#include <fstream>
 #include <codecvt>
+#include <fstream>
 #include <locale>
-
 
 static const std::filesystem::path exampleFile{"testData/example.xml"};
 static const std::filesystem::path emptyFile{"testData/empty.xml"};
@@ -103,7 +102,11 @@ TEST(DocClass, dumpFormatedXMLWithSpecialCharsToASCII)
     ASSERT_TRUE(doc);
     const auto xml = doc.value().dump(true, cpplibxml2::Format::ASCII);
     ASSERT_TRUE(xml);
-    ASSERT_STREQ(xml.value().data(), "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n<root>\n  <child>&#20320;&#22909;, &#1084;&#1080;&#1088;, &#1605;&#1585;&#1581;&#1576;&#1575;, &#2344;&#2350;&#2360;&#2381;&#2340;&#2375; &#127757;, &#228;&#246;&#252;&#223;&#196;&#214;&#220;&#8364;</child>\n</root>\n");
+    ASSERT_STREQ(
+        xml.value().data(),
+        "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n<root>\n  <child>&#20320;&#22909;, &#1084;&#1080;&#1088;, "
+        "&#1605;&#1585;&#1581;&#1576;&#1575;, &#2344;&#2350;&#2360;&#2381;&#2340;&#2375; &#127757;, "
+        "&#228;&#246;&#252;&#223;&#196;&#214;&#220;&#8364;</child>\n</root>\n");
 }
 
 TEST(DocClass, dumpFormatedXMLWithSpecialCharsToUTF_16)
@@ -123,10 +126,10 @@ TEST(DocClass, dumpFormatedXMLWithSpecialCharsToUTF_16)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #elif defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable: 4996) // std::codecvt is deprecated in MSVC
+#pragma warning(disable : 4996) // std::codecvt is deprecated in MSVC
 #endif
     // xml->data() is char*, but represents UTF-16
-    std::u16string u16(reinterpret_cast<const char16_t*>(xml->data()), xml->size() / 2);
+    std::u16string u16(reinterpret_cast<const char16_t *>(xml->data()), xml->size() / 2);
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
     std::string result_utf8 = convert.to_bytes(u16);
 #if defined(__clang__)
@@ -138,5 +141,12 @@ TEST(DocClass, dumpFormatedXMLWithSpecialCharsToUTF_16)
 #endif
 
     const std::string expected = "<root><child>你好, мир, مرحبا, नमस्ते 🌍, äöüßÄÖÜ€</child></root>";
-    EXPECT_STREQ(result_utf8.c_str(), "\xEF\xBB\xBF<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root>\n  <child>\xE4\xBD\xA0\xE5\xA5\xBD, \xD0\xBC\xD0\xB8\xD1\x80, \xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7, \xE0\xA4\xA8\xE0\xA4\xAE\xE0\xA4\xB8\xE0\xA5\x8D\xE0\xA4\xA4\xE0\xA5\x87 \xF0\x9F\x8C\x8D, \xC3\xA4\xC3\xB6\xC3\xBC\xC3\x9F\xC3\x84\xC3\x96\xC3\x9C\xE2\x82\xAC</child>\n</root>\n");  // XML content should start with expected
+    EXPECT_STREQ(
+        result_utf8.c_str(),
+        "\xEF\xBB\xBF<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root>\n  <child>\xE4\xBD\xA0\xE5\xA5\xBD, "
+        "\xD0\xBC\xD0\xB8\xD1\x80, \xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7, "
+        "\xE0\xA4\xA8\xE0\xA4\xAE\xE0\xA4\xB8\xE0\xA5\x8D\xE0\xA4\xA4\xE0\xA5\x87 \xF0\x9F\x8C\x8D, "
+        "\xC3\xA4\xC3\xB6\xC3\xBC\xC3\x9F\xC3\x84\xC3\x96\xC3\x9C\xE2\x82\xAC</child>\n</root>\n"); // XML content
+                                                                                                    // should start with
+                                                                                                    // expected
 }

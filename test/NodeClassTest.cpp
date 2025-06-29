@@ -114,7 +114,8 @@ TEST(NodeClass, GetValueOfEmptyNode)
 
 TEST(NodeClass, GetProperty)
 {
-    const auto DocRes = cpplibxml2::Doc::parse(R"(<?xml version="1.0"?><catalog id="Hello" class="World" empty=""></catalog>)");
+    const auto DocRes =
+        cpplibxml2::Doc::parse(R"(<?xml version="1.0"?><catalog id="Hello" class="World" empty=""></catalog>)");
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
