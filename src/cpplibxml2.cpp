@@ -106,6 +106,23 @@ std::expected<std::string, Error> Doc::dump(bool addWhiteSpaces, Format format) 
     return result;
 }
 
+std::expected<void, Error> Doc::saveToFile(const std::filesystem::path &path, bool addWhiteSpaces,
+                                           Format format) const noexcept
+{
+    if (!this->impl->doc)
+        return std::unexpected{Error{"Document is null."}};
+
+    const std::string encoding = to_string(format);
+    const int formatFlag = addWhiteSpaces ? 1 : 0;
+
+    const int rc = xmlSaveFormatFileEnc(path.string().c_str(), this->impl->doc.get(), encoding.c_str(), formatFlag);
+
+    if (rc == -1)
+        return std::unexpected{Error{"Failed to write XML document to file."}};
+
+    return {};
+}
+
 Node::Node() : impl(std::make_unique<Impl>())
 {
 }
