@@ -11,13 +11,15 @@ static const std::filesystem::path exampleFile{"testData/example.xml"};
 static const std::filesystem::path emptyFile{"testData/empty.xml"};
 
 TEST(DocClass, parseFile) {
-    ASSERT_TRUE(std::filesystem::exists(exampleFile)) << std::filesystem::current_path().string() << " - " << exampleFile.string();
+    ASSERT_TRUE(std::filesystem::exists(exampleFile))
+        << std::filesystem::current_path().string() << " - " << exampleFile.string();
     ASSERT_NO_THROW(std::ignore = cpplibxml2::Doc::parseFile(exampleFile));
 }
 
-TEST(DocClass, parseEmptyFilePath) {
-    auto DocResult = cpplibxml2::Doc::parseFile("", cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
-                                                                         cpplibxml2::ParserOptions::DtdLoad);
+TEST(DocClass, parseEmptyFilePath)
+{
+    auto DocResult = cpplibxml2::Doc::parseFile(
+        "", cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document don't exist.");
 }
@@ -62,8 +64,9 @@ TEST(DocClass, parseEmptyString) {
 }
 
 TEST(DocClass, parseRandomString) {
-    auto DocResult = cpplibxml2::Doc::parse(generateRandomString(256), cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
-                                                                         cpplibxml2::ParserOptions::DtdLoad);
+    auto DocResult = cpplibxml2::Doc::parse(generateRandomString(256), cpplibxml2::ParserOptions::NoError |
+                                                                           cpplibxml2::ParserOptions::NoEnt |
+                                                                           cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document not parsed successfully.");
 }
@@ -213,13 +216,13 @@ TEST(DocClass, SaveToFile_ISOEncoding)
 TEST(DocClass, SaveToFile_FailsIfEmptyDoc)
 {
     ASSERT_TRUE(std::filesystem::exists(emptyFile));
-    const auto emptyDoc = cpplibxml2::Doc::parseFile(emptyFile, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::Recover | cpplibxml2::ParserOptions::NoEnt |
-                                                   cpplibxml2::ParserOptions::DtdLoad);
+    const auto emptyDoc = cpplibxml2::Doc::parseFile(
+        emptyFile, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::Recover |
+                       cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(emptyDoc);
     const auto tmpFile = std::filesystem::temp_directory_path() / "invalid_output.xml";
     const auto result = emptyDoc.value().saveToFile(tmpFile);
     ASSERT_TRUE(result.has_value());
-
 
     std::error_code ec;
     std::filesystem::remove(tmpFile, ec);
