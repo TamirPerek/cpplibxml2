@@ -42,6 +42,7 @@ add_custom_command(
     TARGET ${PROJECT_NAME} 
     POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testData $<TARGET_FILE_DIR:${PROJECT_NAME}>/testData
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/testData ${CMAKE_CURRENT_BINARY_DIR}/testData
 )
 
 if(WIN32)
@@ -59,5 +60,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/CompilerWarnings.cmake)
 set_project_warnings(${PROJECT_NAME})
 
 # Add the test
+include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME})
 

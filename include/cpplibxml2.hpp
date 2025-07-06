@@ -145,7 +145,6 @@ class Doc
     [[nodiscard]] std::expected<std::string, Error> dump(bool addWhiteSpaces = false,
                                                          Format format = Format::UTF_8) const noexcept;
 
-    // TODO: Consider adding a function to write the XML document directly to a file in the future.
     /**
      * Writes the XML document to the given file path.
      *

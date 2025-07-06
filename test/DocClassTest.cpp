@@ -11,12 +11,13 @@ static const std::filesystem::path exampleFile{"testData/example.xml"};
 static const std::filesystem::path emptyFile{"testData/empty.xml"};
 
 TEST(DocClass, parseFile) {
-    ASSERT_TRUE(std::filesystem::exists(exampleFile));
+    ASSERT_TRUE(std::filesystem::exists(exampleFile)) << std::filesystem::current_path().string() << " - " << exampleFile.string();
     ASSERT_NO_THROW(std::ignore = cpplibxml2::Doc::parseFile(exampleFile));
 }
 
 TEST(DocClass, parseEmptyFilePath) {
-    auto DocResult = cpplibxml2::Doc::parseFile("");
+    auto DocResult = cpplibxml2::Doc::parseFile("", cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
+                                                                         cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document don't exist.");
 }
@@ -61,7 +62,8 @@ TEST(DocClass, parseEmptyString) {
 }
 
 TEST(DocClass, parseRandomString) {
-    auto DocResult = cpplibxml2::Doc::parse(generateRandomString(256));
+    auto DocResult = cpplibxml2::Doc::parse(generateRandomString(256), cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
+                                                                         cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document not parsed successfully.");
 }
@@ -176,8 +178,12 @@ TEST(DocClass, SaveToFile_WritesXMLToFileCorrectly)
     // Inhalt sollte das XML enthalten
     EXPECT_NE(fileContent.find("<child>value</child>"), std::string::npos);
 
+    inFile.close();
+
     // Aufräumen
-    std::filesystem::remove(tmpFile);
+    std::error_code ec;
+    std::filesystem::remove(tmpFile, ec);
+    EXPECT_FALSE(ec) << "Failed to remove temporary file: " << ec.message();
 }
 TEST(DocClass, SaveToFile_ISOEncoding)
 {
@@ -197,16 +203,28 @@ TEST(DocClass, SaveToFile_ISOEncoding)
     // EXPECT_NE(fileContent.find("äöüß"), std::string::npos);
     EXPECT_NE(fileContent.find("ISO-8859-1"), std::string::npos);
 
-    std::filesystem::remove(tmpFile);
+    inFile.close();
+
+    std::error_code ec;
+    std::filesystem::remove(tmpFile, ec);
+    EXPECT_FALSE(ec) << "Failed to remove temporary file: " << ec.message();
 }
 
-// TEST(DocClass, SaveToFile_FailsIfEmptyDoc)
-// {
-//     auto emptyDoc = cpplibxml2::Doc::parse("", cpplibxml2::ParserOptions::NoError | ParserOptions::NoEnt |
-//     ParserOptions::DtdLoad); ASSERT_TRUE(emptyDoc); const auto tmpFile = std::filesystem::temp_directory_path() /
-//     "invalid_output.xml"; auto result = emptyDoc.value().saveToFile(tmpFile); ASSERT_FALSE(result.has_value());
-//     EXPECT_STREQ(result.error().what(), "Document is null.");
-// }
+TEST(DocClass, SaveToFile_FailsIfEmptyDoc)
+{
+    ASSERT_TRUE(std::filesystem::exists(emptyFile));
+    const auto emptyDoc = cpplibxml2::Doc::parseFile(emptyFile, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::Recover | cpplibxml2::ParserOptions::NoEnt |
+                                                   cpplibxml2::ParserOptions::DtdLoad);
+    ASSERT_TRUE(emptyDoc);
+    const auto tmpFile = std::filesystem::temp_directory_path() / "invalid_output.xml";
+    const auto result = emptyDoc.value().saveToFile(tmpFile);
+    ASSERT_TRUE(result.has_value());
+
+
+    std::error_code ec;
+    std::filesystem::remove(tmpFile, ec);
+    EXPECT_FALSE(ec) << "Failed to remove temporary file: " << ec.message();
+}
 
 TEST(DocClass, SaveToFile_InvalidPath)
 {
