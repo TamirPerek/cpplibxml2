@@ -26,7 +26,7 @@ target_link_libraries(${PROJECT_NAME}
 
 if (WIN32)
     target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:/fsanitize=address}
+            $<$<CONFIG:Debug>:/fsanitize=address>
     )
 else ()
     target_compile_options(${PROJECT_NAME} PRIVATE

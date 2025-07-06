@@ -40,7 +40,7 @@ message(STATUS "CXX compiler: ${CMAKE_CXX_COMPILER}")
 
 if (WIN32)
     target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:/fsanitize=address}
+            $<$<CONFIG:Debug>:/fsanitize=address>
     )
 else ()
     target_compile_options(${PROJECT_NAME} PRIVATE
