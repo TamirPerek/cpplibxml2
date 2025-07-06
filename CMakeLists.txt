@@ -38,6 +38,20 @@ message(STATUS "CXX compiler ID: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CXX compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "CXX compiler: ${CMAKE_CXX_COMPILER}")
 
+if (WIN32)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Debug>:/fsanitize=address}
+    )
+else ()
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Debug>:-fsanitize=address -fno-omit-frame-pointer>
+    )
+
+    target_link_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Debug>:-fsanitize=address>
+    )
+endif ()
+
 target_sources(
         ${PROJECT_NAME}
         PRIVATE
