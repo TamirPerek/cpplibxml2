@@ -1,4 +1,12 @@
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wno-null-dereference"
+#endif
 #include <gtest/gtest.h>
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 #include "helper.hpp"
 #include <cpplibxml2.hpp>
 
