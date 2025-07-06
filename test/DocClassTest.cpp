@@ -1,6 +1,6 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wno-null-dereference"
+#pragma GCC diagnostic ignored "-Wnull-dereference"
 #endif
 #include <gtest/gtest.h>
 #ifdef __GNUC__
