@@ -17,10 +17,10 @@ protected:
 };
 
 TEST_F(NodeNamespaceTest, AddNamespaceSuccess) {
-    ASSERT_NO_THROW(root.addNamespace("test", "http://test.com"));
+    ASSERT_NO_THROW(root.addNamespace("test", "https://test.com"));
     auto [prefix, uri] = root.getNamespace();
     EXPECT_EQ(prefix, "test");
-    EXPECT_EQ(uri, "http://test.com");
+    EXPECT_EQ(uri, "https://test.com");
 }
 
 // TEST_F(NodeNamespaceTest, AddNamespaceToInvalidNode) {
@@ -31,7 +31,7 @@ TEST_F(NodeNamespaceTest, AddNamespaceSuccess) {
 //     const auto invalidNode{std::move(invalidNodeRes.value())};
 //     EXPECT_THROW({
 //         try {
-//             invalidNode.addNamespace("test", "http://test.com");
+//             invalidNode.addNamespace("test", "https://test.com");
 //         } catch (const cpplibxml2::Error& e) {
 //             EXPECT_STREQ(e.what(), "Node not found.");
 //             throw;
@@ -40,14 +40,14 @@ TEST_F(NodeNamespaceTest, AddNamespaceSuccess) {
 // }
 
 TEST_F(NodeNamespaceTest, AddEmptyNamespace) {
-    ASSERT_NO_THROW(root.addNamespace("", "http://test.com"));
+    ASSERT_NO_THROW(root.addNamespace("", "https://test.com"));
     auto [prefix, uri] = root.getNamespace();
     EXPECT_TRUE(prefix.empty());
-    EXPECT_EQ(uri, "http://test.com");
+    EXPECT_EQ(uri, "https://test.com");
 }
 
 TEST_F(NodeNamespaceTest, AddNamespaceAndRemove) {
-    ASSERT_NO_THROW(root.addNamespace("test", "http://test.com"));
+    ASSERT_NO_THROW(root.addNamespace("test", "https://test.com"));
     ASSERT_NO_THROW(root.removeNamespace());
     auto [prefix, uri] = root.getNamespace();
     EXPECT_TRUE(prefix.empty());
@@ -55,13 +55,13 @@ TEST_F(NodeNamespaceTest, AddNamespaceAndRemove) {
 }
 
 TEST_F(NodeNamespaceTest, AddMultipleNamespaces) {
-    ASSERT_NO_THROW(root.addNamespace("test1", "http://test1.com"));
+    ASSERT_NO_THROW(root.addNamespace("test1", "https://test1.com"));
     auto [prefix1, uri1] = root.getNamespace();
     EXPECT_EQ(prefix1, "test1");
-    EXPECT_EQ(uri1, "http://test1.com");
+    EXPECT_EQ(uri1, "https://test1.com");
 
-    ASSERT_NO_THROW(root.addNamespace("test2", "http://test2.com"));
+    ASSERT_NO_THROW(root.addNamespace("test2", "https://test2.com"));
     auto [prefix2, uri2] = root.getNamespace();
     EXPECT_EQ(prefix2, "test2");
-    EXPECT_EQ(uri2, "http://test2.com");
+    EXPECT_EQ(uri2, "https://test2.com");
 }

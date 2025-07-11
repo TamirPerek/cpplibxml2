@@ -34,7 +34,9 @@ TEST(DocClass, parseEmptyFilePath)
 
 TEST(DocClass, parseEmptyFile) {
     ASSERT_TRUE(std::filesystem::exists(emptyFile));
-    auto DocResult = cpplibxml2::Doc::parseFile(emptyFile, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
+    auto DocResult =
+        cpplibxml2::Doc::parseFile(emptyFile, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
+                                                  cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_FALSE(DocResult);
     ASSERT_STREQ(DocResult.error().what(), "Document not parsed successfully.");
 }
@@ -52,6 +54,7 @@ TEST(DocClass, MoveAssignmentOperator) {
     auto doc2 = cpplibxml2::Doc::parse(xml2);
 
     doc2 = std::move(doc1);
+    ASSERT_TRUE(doc2); // Just to suppress the warning that doc2 is not used :(
 }
 
 TEST(DocClass, parse) {
@@ -82,7 +85,8 @@ TEST(DocClass, parseRandomString) {
 TEST(DocClass, dumpXML)
 {
     constexpr auto orgXML = std::string_view{"<root><child>data</child></root>"};
-    const auto doc = cpplibxml2::Doc::parse(orgXML, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
+    const auto doc =
+        cpplibxml2::Doc::parse(orgXML, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(doc);
     const auto xml = doc.value().dump();
     ASSERT_TRUE(xml);
@@ -143,6 +147,8 @@ TEST(DocClass, dumpFormatedXMLWithSpecialCharsToUTF_16)
 #pragma warning(disable : 4996) // std::codecvt is deprecated in MSVC
 #endif
     // xml->data() is char*, but represents UTF-16
+    // actually as far as I know, there is no better and easier option to convert from UTF-16 to UTF-8
+    // Feel free to suggest a bette option.
     std::u16string u16(reinterpret_cast<const char16_t *>(xml->data()), xml->size() / 2);
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
     std::string result_utf8 = convert.to_bytes(u16);
@@ -199,7 +205,8 @@ TEST(DocClass, SaveToFile_WritesXMLToFileCorrectly)
 TEST(DocClass, SaveToFile_ISOEncoding)
 {
     const std::string xmlContent = R"(<root><child>äöüß</child></root>)";
-    auto doc = cpplibxml2::Doc::parse(xmlContent, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
+    auto doc =
+        cpplibxml2::Doc::parse(xmlContent, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(doc.has_value());
 
     const auto tmpFile = std::filesystem::temp_directory_path() / "iso_output.xml";
@@ -240,7 +247,8 @@ TEST(DocClass, SaveToFile_FailsIfEmptyDoc)
 TEST(DocClass, SaveToFile_InvalidPath)
 {
     const std::string xmlContent = R"(<root><child>value</child></root>)";
-    auto doc = cpplibxml2::Doc::parse(xmlContent, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
+    auto doc =
+        cpplibxml2::Doc::parse(xmlContent, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(doc.has_value());
 
     // Simuliere ungültigen Pfad

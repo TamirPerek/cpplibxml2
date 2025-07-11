@@ -1,6 +1,3 @@
-//
-// Created by Nils Brödner on 22.06.25.
-//
 #include "errorTypes.hpp"
 #include <gtest/gtest.h>
 #include <string>
