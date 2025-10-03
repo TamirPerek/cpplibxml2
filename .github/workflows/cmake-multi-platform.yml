@@ -43,7 +43,7 @@ jobs:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
-            c_compiler: clang
+            c_compiler: clang-19
           - os: ubuntu-latest
             c_compiler: cl
 
