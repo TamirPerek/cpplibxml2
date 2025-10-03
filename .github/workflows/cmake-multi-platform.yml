@@ -37,13 +37,13 @@ jobs:
             c_compiler: gcc
             cpp_compiler: g++
           - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
+            c_compiler: clang-19
+            cpp_compiler: clang++-19
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
-            c_compiler: clang-19
+            c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
 
