@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
     libxml2
     GIT_REPOSITORY https://github.com/GNOME/libxml2.git
-    GIT_TAG v2.14.2 # Replace with the desired version tag
+        GIT_TAG v2.15.0 # Replace with the desired version tag
 )
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
