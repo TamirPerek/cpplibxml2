@@ -88,7 +88,7 @@ This project uses GitHub Actions with a matrix build covering:
 
 See the workflow file at `.github/workflows/ci.yml`.
 
-![Build Status](https://github.com/YOUR_USERNAME/cpplibxml2/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/TamirPerek/cpplibxml2/actions/workflows/ci.yml/badge.svg)
 
 ## Contributing
 
