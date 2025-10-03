@@ -1,37 +1,14 @@
 #include "cpplibxml2.hpp"
 
-#include <libxml/parser.h>
+#include "helper.hpp"
+
 #include <functional>
+#include <libxml/parser.h>
 
 #include <memory>
 
 namespace cpplibxml2
 {
-template <typename InputType, typename OutputType>
-std::expected<OutputType, InvalidArgument> to_value(std::function<OutputType(InputType)> &&func ,InputType &&in)
-{
-    try
-    {
-        return func(std::forward<InputType>(in));
-    }
-    catch (const std::invalid_argument &e)
-    {
-        return std::unexpected{InvalidArgument{e}};
-    }
-}
-
-struct xmlDocDeleter
-{
-    void operator()(xmlDoc *doc) const
-    {
-        if (doc)
-        {
-            xmlFreeDoc(doc);
-        }
-    }
-};
-
-using xmlDocPtr_t = std::unique_ptr<xmlDoc, xmlDocDeleter>;
 
 struct Doc::Impl
 {
@@ -102,7 +79,9 @@ std::expected<Node, RuntimeError> Doc::root() const noexcept
     if (!root)
         return std::unexpected{RuntimeError{"Document has no root node."}};
 
-    return Node{root};
+    auto rootNode = Node{};
+    rootNode.impl->node = root;
+    return rootNode;
 }
 std::expected<std::string, RuntimeError> Doc::dump(bool addWhiteSpaces, Format format) const noexcept
 {
@@ -120,7 +99,7 @@ std::expected<std::string, RuntimeError> Doc::dump(bool addWhiteSpaces, Format f
 }
 
 std::expected<void, RuntimeError> Doc::saveToFile(const std::filesystem::path &path, bool addWhiteSpaces,
-                                           Format format) const noexcept
+                                                  Format format) const noexcept
 {
     if (!this->impl->doc)
         return std::unexpected{RuntimeError{"Document is null."}};
@@ -138,10 +117,6 @@ std::expected<void, RuntimeError> Doc::saveToFile(const std::filesystem::path &p
 
 Node::Node() : impl(std::make_unique<Impl>())
 {
-}
-Node::Node(xmlNodePtr in) : impl(std::make_unique<Impl>())
-{
-    this->impl->node = in;
 }
 
 Node::Node(Node &&) noexcept = default;
@@ -168,7 +143,9 @@ std::expected<Node, RuntimeError> Node::findChild(std::string_view name) const n
 
         if (std::string{reinterpret_cast<const char *>(node->name)} == name)
         {
-            return Node{node};
+            auto rootNode = Node{};
+            rootNode.impl->node = node;
+            return rootNode;
         }
     }
     return std::unexpected{RuntimeError{"Node not found."}};
@@ -189,7 +166,9 @@ std::expected<Node, RuntimeError> Node::findChild(std::string_view name, std::st
 
         if (name == localName && nsUri == href)
         {
-            return Node{node};
+            auto rootNode = Node{};
+            rootNode.impl->node = node;
+            return rootNode;
         }
     }
 
@@ -207,7 +186,9 @@ std::expected<std::vector<Node>, RuntimeError> Node::getChildren() const noexcep
         if (node->type != XML_ELEMENT_NODE)
             continue;
 
-        result.emplace_back(Node{node});
+        auto rootNode = Node{};
+        rootNode.impl->node = node;
+        result.emplace_back(std::move(rootNode));
     }
 
     return result;
@@ -261,14 +242,10 @@ std::expected<long, InvalidArgument> Node::valueAsLong(int base) const
 
 std::expected<long long, InvalidArgument> Node::valueAsLongLong(int base) const
 {
-    auto lambda = [base](const std::string &in) {
-        return std::stoll(in, nullptr, base);
-    };
+    auto lambda = [base](const std::string &in) { return std::stoll(in, nullptr, base); };
     return this->value()
-        .transform_error([](auto &&in){return InvalidArgument{std::string{in.what()}};})
-        .and_then([lambda](std::string &&in) {
-            return to_value<std::string, long long>(lambda, std::move(in));
-        });
+        .transform_error([](auto &&in) { return InvalidArgument{std::string{in.what()}}; })
+        .and_then([lambda](std::string &&in) { return to_value<std::string, long long>(lambda, std::move(in)); });
 }
 std::expected<std::pair<std::string_view, std::string_view>, RuntimeError> Node::findProperty(
     const std::string_view name) const noexcept
@@ -328,10 +305,12 @@ std::expected<Node, RuntimeError> Node::addChild(std::string_view name) const no
     if (!newNode)
         return std::unexpected{RuntimeError{"Failed to add node."}};
 
-    return Node{newNode};
+    auto rootNode = Node{};
+    rootNode.impl->node = newNode;
+    return rootNode;
 }
 
-void Node::addValue(std::string_view value) const
+void Node::addValue(const std::string_view value) const
 {
     if (!this->impl->node)
         throw RuntimeError{"Node not found."};
@@ -343,7 +322,7 @@ void Node::addValue(std::string_view value) const
         throw RuntimeError{"Memory allocation to add this value failed"};
 }
 
-void Node::addNamespace(std::string_view prefix, std::string_view uri) const
+void Node::addNamespace(const std::string_view prefix, const std::string_view uri) const
 {
     if (!this->impl->node)
         throw RuntimeError{"Node not found."};

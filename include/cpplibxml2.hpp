@@ -8,10 +8,6 @@
 #include <type_traits>
 #include <vector>
 
-// Forward declaration
-typedef struct _xmlNode xmlNode;
-typedef xmlNode *xmlNodePtr;
-
 namespace cpplibxml2
 {
 enum class ParserOptions : int
@@ -132,18 +128,18 @@ class Doc
 
     Doc &operator=(Doc &&) noexcept;
 
-    [[nodiscard]] static std::expected<Doc, RuntimeError> parseFile(const std::filesystem::path &,
-                                                             ParserOptions options = ParserOptions::NoEnt |
+    [[nodiscard]] static std::expected<Doc, RuntimeError> parseFile(
+        const std::filesystem::path &, ParserOptions options = ParserOptions::NoEnt |
                                                                                      ParserOptions::DtdLoad) noexcept;
 
     [[nodiscard]] static std::expected<Doc, RuntimeError> parse(std::string_view,
-                                                         ParserOptions = ParserOptions::NoEnt |
-                                                                         ParserOptions::DtdLoad) noexcept;
+                                                                ParserOptions = ParserOptions::NoEnt |
+                                                                                ParserOptions::DtdLoad) noexcept;
 
     [[nodiscard]] std::expected<Node, RuntimeError> root() const noexcept;
 
     [[nodiscard]] std::expected<std::string, RuntimeError> dump(bool addWhiteSpaces = false,
-                                                         Format format = Format::UTF_8) const noexcept;
+                                                                Format format = Format::UTF_8) const noexcept;
 
     /**
      * Writes the XML document to the given file path.
@@ -153,14 +149,14 @@ class Doc
      * @param format Encoding format (UTF-8 by default)
      * @return Success or Error
      */
-    [[nodiscard]] std::expected<void, RuntimeError> saveToFile(const std::filesystem::path &path, bool addWhiteSpaces = false,
-                                                        Format format = Format::UTF_8) const noexcept;
+    [[nodiscard]] std::expected<void, RuntimeError> saveToFile(const std::filesystem::path &path,
+                                                               bool addWhiteSpaces = false,
+                                                               Format format = Format::UTF_8) const noexcept;
 };
 
 class Node
 {
     Node();
-    explicit Node(xmlNodePtr);
 
     struct Impl;
     std::unique_ptr<Impl> impl;
@@ -182,15 +178,22 @@ class Node
 
     [[nodiscard]] std::expected<Node, RuntimeError> findChild(std::string_view name) const noexcept;
 
-    [[nodiscard]] std::expected<Node, RuntimeError> findChild(std::string_view name, std::string_view nsUri) const noexcept;
+    [[nodiscard]] std::expected<Node, RuntimeError> findChild(std::string_view name,
+                                                              std::string_view nsUri) const noexcept;
 
     [[nodiscard]] std::expected<std::vector<Node>, RuntimeError> getChildren() const noexcept;
 
     [[nodiscard]] std::expected<std::string, RuntimeError> value() const noexcept;
 
+
     /**
+     * Retrieve the node’s text content and convert it to a float.
+     * Internally calls std::stof and wraps any std::invalid_argument
+     * or std::out_of_range exceptions into an InvalidArgument error.
      *
-     * @return
+     * @return std::expected<float, InvalidArgument>
+     *         - contains the parsed float value on success
+     *         - contains an InvalidArgument error if conversion fails
      */
     [[nodiscard]] std::expected<float, InvalidArgument> valueAsFloat() const;
     /**

@@ -108,9 +108,28 @@ TEST(NodeClass, GetValueNotANumber)
     ASSERT_TRUE(PriceNode);
     ASSERT_TRUE(PriceNode.value().value());
     EXPECT_STREQ(PriceNode.value().value().value().c_str(), "Hello");
-    EXPECT_TRUE(PriceNode.value().valueAsInt().has_value() == false);
-    EXPECT_TRUE(PriceNode.value().valueAsFloat().has_value() == false);
-    EXPECT_TRUE(PriceNode.value().valueAsDouble().has_value() == false);
+
+    // Unable to convert strings to numbers
+    EXPECT_FALSE(PriceNode.value().valueAsInt());
+    EXPECT_FALSE(PriceNode.value().valueAsLong());
+    EXPECT_FALSE(PriceNode.value().valueAsLongLong());
+    EXPECT_FALSE(PriceNode.value().valueAsFloat());
+    EXPECT_FALSE(PriceNode.value().valueAsDouble());
+
+    // Convert value to number
+    PriceNode.value().addValue("42.4");
+    ASSERT_TRUE(PriceNode.value().valueAsInt());
+    EXPECT_EQ(PriceNode.value().valueAsInt().value(), 42);
+    ASSERT_TRUE(PriceNode.value().valueAsLong());
+    EXPECT_EQ(PriceNode.value().valueAsLong().value(), 42l);
+    ASSERT_TRUE(PriceNode.value().valueAsLongLong());
+    EXPECT_EQ(PriceNode.value().valueAsLongLong().value(), 42ll);
+    ASSERT_TRUE(PriceNode.value().valueAsFloat());
+    EXPECT_EQ(PriceNode.value().valueAsFloat().value(), 42.4f);
+    ASSERT_TRUE(PriceNode.value().valueAsDouble());
+    EXPECT_EQ(PriceNode.value().valueAsDouble().value(), 42.4);
+
+
 }
 
 TEST(NodeClass, GetValueOfEmptyNode)

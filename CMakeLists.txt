@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME}_Warnings INTERFACE)
 add_library(
         ${PROJECT_NAME}
         STATIC
+        src/helper.hpp
 )
 
 message(STATUS "CXX compiler ID: ${CMAKE_CXX_COMPILER_ID}")

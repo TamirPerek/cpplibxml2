@@ -2,19 +2,22 @@
 #include <stdexcept>
 
 namespace cpplibxml2 {
-    class RuntimeError final : public std::runtime_error {
-    public:
-        using std::runtime_error::runtime_error;
+class RuntimeError final : public std::runtime_error
+{
+  public:
+    using std::runtime_error::runtime_error;
 
-        RuntimeError() : std::runtime_error("") {}
-    };
-
-    class InvalidArgument final : public std::invalid_argument
+        RuntimeError() : std::runtime_error("")
     {
-    public:
-        using std::invalid_argument::invalid_argument;
-        explicit InvalidArgument(const invalid_argument & invalid_argument)
-            : std::invalid_argument(invalid_argument.what())
-        {}
-    };
-}
+    }
+};
+
+class InvalidArgument final : public std::invalid_argument
+{
+  public:
+    using std::invalid_argument::invalid_argument;
+    explicit InvalidArgument(const invalid_argument &invalid_argument) : std::invalid_argument(invalid_argument.what())
+    {
+    }
+};
+} // namespace cpplibxml2
