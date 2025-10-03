@@ -196,27 +196,43 @@ class Node
      */
     [[nodiscard]] std::expected<float, InvalidArgument> valueAsFloat() const;
     /**
+     * Retrieve the node’s text content and convert it to a double.
+     * Internally calls std::stod and wraps any std::invalid_argument
+     * or std::out_of_range exceptions into an InvalidArgument error.
      *
-     * @return Value as double
-     * @throws std::invalid_argument if conversion fails
+     * @return std::expected<double, InvalidArgument>
+     *         - contains the parsed double value on success
+     *         - contains an InvalidArgument error if conversion fails
      */
     [[nodiscard]] std::expected<double, InvalidArgument> valueAsDouble() const;
     /**
+     * Retrieve the node’s text content and convert it to an int.
+     * Internally calls std::stoi and wraps any std::invalid_argument
+     * or std::out_of_range exceptions into an InvalidArgument error.
      *
-     * @return Value as int
-     * @throws std::invalid_argument if conversion fails
+     * @return std::expected<int, InvalidArgument>
+     *         - contains the parsed int value on success
+     *         - contains an InvalidArgument error if conversion fails
      */
     [[nodiscard]] std::expected<int, InvalidArgument> valueAsInt(int base = 10) const;
     /**
+     * Retrieve the node’s text content and convert it to a long.
+     * Internally calls std::stol and wraps any std::invalid_argument
+     * or std::out_of_range exceptions into an InvalidArgument error.
      *
-     * @return Value as long
-     * @throws std::invalid_argument if conversion fails
+     * @return std::expected<long, InvalidArgument>
+     *         - contains the parsed long value on success
+     *         - contains an InvalidArgument error if conversion fails
      */
     [[nodiscard]] std::expected<long, InvalidArgument> valueAsLong(int base = 10) const;
     /**
+     * Retrieve the node’s text content and convert it to a long long.
+     * Internally calls std::stoll and wraps any std::invalid_argument
+     * or std::out_of_range exceptions into an InvalidArgument error.
      *
-     * @return Value as long long
-     * @throws std::invalid_argument if conversion fails
+     * @return std::expected<long long, InvalidArgument>
+     *         - contains the parsed long long value on success
+     *         - contains an InvalidArgument error if conversion fails
      */
     [[nodiscard]] std::expected<long long, InvalidArgument> valueAsLongLong(int base = 10) const;
 
