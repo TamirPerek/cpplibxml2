@@ -1,5 +1,3 @@
-# FetchContent module to download libxml2 from GitHub
-include(FetchContent)
 
 FetchContent_Declare(
     libxml2
