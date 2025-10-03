@@ -129,8 +129,7 @@ class Doc
     Doc &operator=(Doc &&) noexcept;
 
     [[nodiscard]] static std::expected<Doc, RuntimeError> parseFile(
-        const std::filesystem::path &, ParserOptions options = ParserOptions::NoEnt |
-                                                                                     ParserOptions::DtdLoad) noexcept;
+        const std::filesystem::path &, ParserOptions options = ParserOptions::NoEnt | ParserOptions::DtdLoad) noexcept;
 
     [[nodiscard]] static std::expected<Doc, RuntimeError> parse(std::string_view,
                                                                 ParserOptions = ParserOptions::NoEnt |

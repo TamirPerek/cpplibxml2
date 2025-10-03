@@ -7,7 +7,7 @@ class RuntimeError final : public std::runtime_error
   public:
     using std::runtime_error::runtime_error;
 
-        RuntimeError() : std::runtime_error("")
+    RuntimeError() : std::runtime_error("")
     {
     }
 };

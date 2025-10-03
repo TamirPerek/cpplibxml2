@@ -128,8 +128,6 @@ TEST(NodeClass, GetValueNotANumber)
     EXPECT_EQ(PriceNode.value().valueAsFloat().value(), 42.4f);
     ASSERT_TRUE(PriceNode.value().valueAsDouble());
     EXPECT_EQ(PriceNode.value().valueAsDouble().value(), 42.4);
-
-
 }
 
 TEST(NodeClass, GetValueOfEmptyNode)
