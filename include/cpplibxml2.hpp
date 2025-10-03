@@ -132,17 +132,17 @@ class Doc
 
     Doc &operator=(Doc &&) noexcept;
 
-    [[nodiscard]] static std::expected<Doc, Error> parseFile(const std::filesystem::path &,
+    [[nodiscard]] static std::expected<Doc, RuntimeError> parseFile(const std::filesystem::path &,
                                                              ParserOptions options = ParserOptions::NoEnt |
                                                                                      ParserOptions::DtdLoad) noexcept;
 
-    [[nodiscard]] static std::expected<Doc, Error> parse(std::string_view,
+    [[nodiscard]] static std::expected<Doc, RuntimeError> parse(std::string_view,
                                                          ParserOptions = ParserOptions::NoEnt |
                                                                          ParserOptions::DtdLoad) noexcept;
 
-    [[nodiscard]] std::expected<Node, Error> root() const noexcept;
+    [[nodiscard]] std::expected<Node, RuntimeError> root() const noexcept;
 
-    [[nodiscard]] std::expected<std::string, Error> dump(bool addWhiteSpaces = false,
+    [[nodiscard]] std::expected<std::string, RuntimeError> dump(bool addWhiteSpaces = false,
                                                          Format format = Format::UTF_8) const noexcept;
 
     /**
@@ -153,7 +153,7 @@ class Doc
      * @param format Encoding format (UTF-8 by default)
      * @return Success or Error
      */
-    [[nodiscard]] std::expected<void, Error> saveToFile(const std::filesystem::path &path, bool addWhiteSpaces = false,
+    [[nodiscard]] std::expected<void, RuntimeError> saveToFile(const std::filesystem::path &path, bool addWhiteSpaces = false,
                                                         Format format = Format::UTF_8) const noexcept;
 };
 
@@ -178,55 +178,54 @@ class Node
 
     Node &operator=(Node &&) noexcept;
 
-    [[nodiscard]] std::string_view name() const noexcept;
+    [[nodiscard]] std::expected<std::string_view, RuntimeError> name() const noexcept;
 
-    [[nodiscard]] std::expected<Node, Error> findChild(std::string_view name) const noexcept;
+    [[nodiscard]] std::expected<Node, RuntimeError> findChild(std::string_view name) const noexcept;
 
-    [[nodiscard]] std::expected<Node, Error> findChild(std::string_view name, std::string_view nsUri) const noexcept;
+    [[nodiscard]] std::expected<Node, RuntimeError> findChild(std::string_view name, std::string_view nsUri) const noexcept;
 
-    [[nodiscard]] std::expected<std::vector<Node>, Error> getChildren() const noexcept;
+    [[nodiscard]] std::expected<std::vector<Node>, RuntimeError> getChildren() const noexcept;
 
-    [[nodiscard]] std::string value() const noexcept;
+    [[nodiscard]] std::expected<std::string, RuntimeError> value() const noexcept;
 
     /**
      *
-     * @return Value as float
-     * @throws std::invalid_argument if conversion fails
+     * @return
      */
-    [[nodiscard]] float valueAsFloat() const;
+    [[nodiscard]] std::expected<float, InvalidArgument> valueAsFloat() const;
     /**
      *
      * @return Value as double
      * @throws std::invalid_argument if conversion fails
      */
-    [[nodiscard]] double valueAsDouble() const;
+    [[nodiscard]] std::expected<double, InvalidArgument> valueAsDouble() const;
     /**
      *
      * @return Value as int
      * @throws std::invalid_argument if conversion fails
      */
-    [[nodiscard]] int valueAsInt(int base = 10) const;
+    [[nodiscard]] std::expected<int, InvalidArgument> valueAsInt(int base = 10) const;
     /**
      *
      * @return Value as long
      * @throws std::invalid_argument if conversion fails
      */
-    [[nodiscard]] long valueAsLong(int base = 10) const;
+    [[nodiscard]] std::expected<long, InvalidArgument> valueAsLong(int base = 10) const;
     /**
      *
      * @return Value as long long
      * @throws std::invalid_argument if conversion fails
      */
-    [[nodiscard]] long long valueAsLongLong(int base = 10) const;
+    [[nodiscard]] std::expected<long long, InvalidArgument> valueAsLongLong(int base = 10) const;
 
-    [[nodiscard]] std::expected<std::pair<std::string_view, std::string_view>, Error> findProperty(
-        std::string_view name) const noexcept;
+    [[nodiscard]] std::expected<std::pair<std::string_view, std::string_view>, RuntimeError> findProperty(
+        const std::string_view name) const noexcept;
 
     [[nodiscard]] std::vector<std::pair<std::string_view, std::string_view>> getProperties() const noexcept;
 
     [[nodiscard]] std::pair<std::string_view, std::string_view> getNamespace() const noexcept;
 
-    [[nodiscard]] std::expected<Node, Error> addChild(std::string_view) const noexcept;
+    [[nodiscard]] std::expected<Node, RuntimeError> addChild(std::string_view) const noexcept;
 
     void addValue(std::string_view value) const;
 

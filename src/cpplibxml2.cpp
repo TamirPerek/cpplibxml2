@@ -1,12 +1,25 @@
 #include "cpplibxml2.hpp"
 
 #include <libxml/parser.h>
-// #include <libxml/tree.h>
+#include <functional>
 
 #include <memory>
 
 namespace cpplibxml2
 {
+template <typename InputType, typename OutputType>
+std::expected<OutputType, InvalidArgument> to_value(std::function<OutputType(InputType)> &&func ,InputType &&in)
+{
+    try
+    {
+        return func(std::forward<InputType>(in));
+    }
+    catch (const std::invalid_argument &e)
+    {
+        return std::unexpected{InvalidArgument{e}};
+    }
+}
+
 struct xmlDocDeleter
 {
     void operator()(xmlDoc *doc) const
@@ -35,19 +48,19 @@ Doc::~Doc() = default;
 
 Doc &Doc::operator=(Doc &&) noexcept = default;
 
-std::expected<Doc, Error> Doc::parseFile(const std::filesystem::path &path, ParserOptions options) noexcept
+std::expected<Doc, RuntimeError> Doc::parseFile(const std::filesystem::path &path, ParserOptions options) noexcept
 {
     // Initialize the library and check potential ABI mismatches
     LIBXML_TEST_VERSION
 
     if (!std::filesystem::exists(path))
-        return std::unexpected{Error{"Document don't exist."}};
+        return std::unexpected{RuntimeError{"Document don't exist."}};
 
     auto doc = xmlDocPtr_t(xmlReadFile(path.string().c_str(), nullptr, static_cast<int>(options)));
 
     if (!doc)
     {
-        return std::unexpected{Error{"Document not parsed successfully."}};
+        return std::unexpected{RuntimeError{"Document not parsed successfully."}};
     }
 
     auto result = Doc{};
@@ -56,20 +69,20 @@ std::expected<Doc, Error> Doc::parseFile(const std::filesystem::path &path, Pars
     return result;
 }
 
-std::expected<Doc, Error> Doc::parse(std::string_view input, ParserOptions options) noexcept
+std::expected<Doc, RuntimeError> Doc::parse(std::string_view input, ParserOptions options) noexcept
 {
     // Initialize the library and check potential ABI mismatches
     LIBXML_TEST_VERSION
 
     if (input.empty())
-        return std::unexpected{Error{"Document is empty."}};
+        return std::unexpected{RuntimeError{"Document is empty."}};
 
     auto doc = xmlDocPtr_t(
         xmlReadMemory(input.data(), static_cast<int>(input.size()), nullptr, nullptr, static_cast<int>(options)));
 
     if (!doc)
     {
-        return std::unexpected{Error{"Document not parsed successfully."}};
+        return std::unexpected{RuntimeError{"Document not parsed successfully."}};
     }
 
     auto result = Doc{};
@@ -83,34 +96,34 @@ struct Node::Impl
     xmlNodePtr node;
 };
 
-std::expected<Node, Error> Doc::root() const noexcept
+std::expected<Node, RuntimeError> Doc::root() const noexcept
 {
     const auto root = xmlDocGetRootElement(this->impl->doc.get());
     if (!root)
-        return std::unexpected{Error{"Document has no root node."}};
+        return std::unexpected{RuntimeError{"Document has no root node."}};
 
     return Node{root};
 }
-std::expected<std::string, Error> Doc::dump(bool addWhiteSpaces, Format format) const noexcept
+std::expected<std::string, RuntimeError> Doc::dump(bool addWhiteSpaces, Format format) const noexcept
 {
     if (!this->impl->doc)
-        return std::unexpected{Error{"Document is null."}};
+        return std::unexpected{RuntimeError{"Document is null."}};
 
     xmlChar *buffer = nullptr;
     int size = -1;
     xmlDocDumpFormatMemoryEnc(this->impl->doc.get(), &buffer, &size, to_string(format).c_str(), addWhiteSpaces ? 1 : 0);
     if (!buffer)
-        return std::unexpected{Error{"Failed to dump document."}};
+        return std::unexpected{RuntimeError{"Failed to dump document."}};
 
     std::string result(reinterpret_cast<const char *>(buffer), static_cast<std::string::size_type>(size));
     return result;
 }
 
-std::expected<void, Error> Doc::saveToFile(const std::filesystem::path &path, bool addWhiteSpaces,
+std::expected<void, RuntimeError> Doc::saveToFile(const std::filesystem::path &path, bool addWhiteSpaces,
                                            Format format) const noexcept
 {
     if (!this->impl->doc)
-        return std::unexpected{Error{"Document is null."}};
+        return std::unexpected{RuntimeError{"Document is null."}};
 
     const std::string encoding = to_string(format);
     const int formatFlag = addWhiteSpaces ? 1 : 0;
@@ -118,7 +131,7 @@ std::expected<void, Error> Doc::saveToFile(const std::filesystem::path &path, bo
     const int rc = xmlSaveFormatFileEnc(path.string().c_str(), this->impl->doc.get(), encoding.c_str(), formatFlag);
 
     if (rc == -1)
-        return std::unexpected{Error{"Failed to write XML document to file."}};
+        return std::unexpected{RuntimeError{"Failed to write XML document to file."}};
 
     return {};
 }
@@ -137,17 +150,17 @@ Node::~Node() = default;
 
 Node &Node::operator=(Node &&) noexcept = default;
 
-std::string_view Node::name() const noexcept
+std::expected<std::string_view, RuntimeError> Node::name() const noexcept
 {
     if (!this->impl->node)
-        return "";
+        return std::unexpected{RuntimeError{"Node is null."}};
     return std::string_view{reinterpret_cast<const char *>(this->impl->node->name)};
 }
 
-std::expected<Node, Error> Node::findChild(std::string_view name) const noexcept
+std::expected<Node, RuntimeError> Node::findChild(std::string_view name) const noexcept
 {
     if (!this->impl->node)
-        return std::unexpected{Error{"Node not found."}};
+        return std::unexpected{RuntimeError{"Node not found."}};
     for (auto node = this->impl->node->children; node; node = node->next)
     {
         if (node->type != XML_ELEMENT_NODE)
@@ -158,13 +171,13 @@ std::expected<Node, Error> Node::findChild(std::string_view name) const noexcept
             return Node{node};
         }
     }
-    return std::unexpected{Error{"Node not found."}};
+    return std::unexpected{RuntimeError{"Node not found."}};
 }
 
-std::expected<Node, Error> Node::findChild(std::string_view name, std::string_view nsUri) const noexcept
+std::expected<Node, RuntimeError> Node::findChild(std::string_view name, std::string_view nsUri) const noexcept
 {
     if (!this->impl->node)
-        return std::unexpected{Error{"Node is null."}};
+        return std::unexpected{RuntimeError{"Node is null."}};
 
     for (auto node = this->impl->node->children; node; node = node->next)
     {
@@ -180,13 +193,13 @@ std::expected<Node, Error> Node::findChild(std::string_view name, std::string_vi
         }
     }
 
-    return std::unexpected{Error{"Namespaced node not found."}};
+    return std::unexpected{RuntimeError{"Namespaced node not found."}};
 }
 
-std::expected<std::vector<Node>, Error> Node::getChildren() const noexcept
+std::expected<std::vector<Node>, RuntimeError> Node::getChildren() const noexcept
 {
     if (!this->impl->node)
-        return std::unexpected{Error{"Node is null."}};
+        return std::unexpected{RuntimeError{"Node is null."}};
 
     std::vector<Node> result;
     for (auto node = this->impl->node->children; node; node = node->next)
@@ -202,47 +215,66 @@ std::expected<std::vector<Node>, Error> Node::getChildren() const noexcept
 
 using xmlChar_t = std::unique_ptr<xmlChar, decltype([](xmlChar *in) { xmlFree(in); })>;
 
-std::string Node::value() const noexcept
+std::expected<std::string, RuntimeError> Node::value() const noexcept
 {
     if (!this->impl->node)
-        return "";
+        return std::unexpected{RuntimeError{"Node is null."}};
     const auto content = xmlChar_t{xmlNodeGetContent(this->impl->node)};
     if (!content)
-        return "";
+        return std::unexpected{RuntimeError{"Failed to get node content."}};
 
     std::string result(reinterpret_cast<const char *>(content.get()));
     return result;
 }
 
-float Node::valueAsFloat() const
+std::expected<float, InvalidArgument> Node::valueAsFloat() const
 {
-    return std::stof(this->value());
+    auto lambda = [](const std::string &in) { return std::stof(in); };
+    return this->value()
+        .transform_error([](auto &&in) { return InvalidArgument{std::string{in.what()}}; })
+        .and_then([lambda](std::string &&in) { return to_value<std::string, float>(lambda, std::move(in)); });
 }
 
-double Node::valueAsDouble() const
+std::expected<double, InvalidArgument> Node::valueAsDouble() const
 {
-    return std::stod(this->value());
+    auto lambda = [](const std::string &in) { return std::stod(in); };
+    return this->value()
+        .transform_error([](auto &&in) { return InvalidArgument{std::string{in.what()}}; })
+        .and_then([lambda](std::string &&in) { return to_value<std::string, double>(lambda, std::move(in)); });
 }
 
-int Node::valueAsInt(int base) const
+std::expected<int, InvalidArgument> Node::valueAsInt(int base) const
 {
-    return std::stoi(this->value(), nullptr, base);
+    auto lambda = [base](const std::string &in) { return std::stoi(in, nullptr, base); };
+    return this->value()
+        .transform_error([](auto &&in) { return InvalidArgument{std::string{in.what()}}; })
+        .and_then([lambda](std::string &&in) { return to_value<std::string, int>(lambda, std::move(in)); });
 }
 
-long Node::valueAsLong(int base) const
+std::expected<long, InvalidArgument> Node::valueAsLong(int base) const
 {
-    return std::stol(this->value(), nullptr, base);
+    auto lambda = [base](const std::string &in) { return std::stol(in, nullptr, base); };
+    return this->value()
+        .transform_error([](auto &&in) { return InvalidArgument{std::string{in.what()}}; })
+        .and_then([lambda](std::string &&in) { return to_value<std::string, long>(lambda, std::move(in)); });
 }
 
-long long Node::valueAsLongLong(int base) const
+std::expected<long long, InvalidArgument> Node::valueAsLongLong(int base) const
 {
-    return std::stoll(this->value(), nullptr, base);
+    auto lambda = [base](const std::string &in) {
+        return std::stoll(in, nullptr, base);
+    };
+    return this->value()
+        .transform_error([](auto &&in){return InvalidArgument{std::string{in.what()}};})
+        .and_then([lambda](std::string &&in) {
+            return to_value<std::string, long long>(lambda, std::move(in));
+        });
 }
-std::expected<std::pair<std::string_view, std::string_view>, Error> Node::findProperty(
-    std::string_view name) const noexcept
+std::expected<std::pair<std::string_view, std::string_view>, RuntimeError> Node::findProperty(
+    const std::string_view name) const noexcept
 {
     if (!this->impl->node)
-        return std::unexpected{Error{"Node not found."}};
+        return std::unexpected{RuntimeError{"Node not found."}};
     for (auto node = this->impl->node->properties; node; node = node->next)
     {
         if (auto nodeName = std::string_view{reinterpret_cast<const char *>(node->name)}; nodeName == name)
@@ -251,7 +283,7 @@ std::expected<std::pair<std::string_view, std::string_view>, Error> Node::findPr
                 nodeName, node->children ? reinterpret_cast<const char *>(node->children->content) : ""};
         }
     }
-    return std::unexpected{Error{"Property not found."}};
+    return std::unexpected{RuntimeError{"Property not found."}};
 }
 
 std::vector<std::pair<std::string_view, std::string_view>> Node::getProperties() const noexcept
@@ -282,19 +314,19 @@ std::pair<std::string_view, std::string_view> Node::getNamespace() const noexcep
     return {};
 }
 
-std::expected<Node, Error> Node::addChild(std::string_view name) const noexcept
+std::expected<Node, RuntimeError> Node::addChild(std::string_view name) const noexcept
 {
     if (!this->impl->node)
-        return std::unexpected{Error{"Node not found."}};
+        return std::unexpected{RuntimeError{"Node not found."}};
 
     const auto child = xmlNewNode(nullptr, reinterpret_cast<const unsigned char *>(name.data()));
 
     if (!child)
-        return std::unexpected{Error{"Failed to create node."}};
+        return std::unexpected{RuntimeError{"Failed to create node."}};
 
     const auto newNode = xmlAddChild(this->impl->node, child);
     if (!newNode)
-        return std::unexpected{Error{"Failed to add node."}};
+        return std::unexpected{RuntimeError{"Failed to add node."}};
 
     return Node{newNode};
 }
@@ -302,30 +334,30 @@ std::expected<Node, Error> Node::addChild(std::string_view name) const noexcept
 void Node::addValue(std::string_view value) const
 {
     if (!this->impl->node)
-        throw Error{"Node not found."};
+        throw RuntimeError{"Node not found."};
 
     const auto res = xmlNodeSetContent(this->impl->node, reinterpret_cast<const unsigned char *>(value.data()));
     if (res == 1)
-        throw Error{"Failed to add value."};
+        throw RuntimeError{"Failed to add value."};
     if (res == -1)
-        throw Error{"Memory allocation to add this value failed"};
+        throw RuntimeError{"Memory allocation to add this value failed"};
 }
 
 void Node::addNamespace(std::string_view prefix, std::string_view uri) const
 {
     if (!this->impl->node)
-        throw Error{"Node not found."};
+        throw RuntimeError{"Node not found."};
     const auto ns = xmlNewNs(this->impl->node, reinterpret_cast<const unsigned char *>(uri.data()),
                              reinterpret_cast<const unsigned char *>(prefix.data()));
     if (!ns)
-        throw Error{"Failed to add namespace."};
+        throw RuntimeError{"Failed to add namespace."};
     xmlSetNs(this->impl->node, ns);
 }
 
 void Node::removeNamespace() const
 {
     if (!this->impl->node)
-        throw Error{"Node not found."};
+        throw RuntimeError{"Node not found."};
     xmlSetNs(this->impl->node, nullptr);
 }
 } // namespace cpplibxml2

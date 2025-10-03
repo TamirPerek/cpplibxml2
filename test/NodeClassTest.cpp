@@ -16,7 +16,8 @@ TEST(NodeClass, Create)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
 }
 
 TEST(NodeClass, MoveAssignmentOperator)
@@ -45,13 +46,16 @@ TEST(NodeClass, FindChild)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto BookNode = Root.value().findChild("book");
     ASSERT_TRUE(BookNode);
-    EXPECT_STREQ(BookNode.value().name().data(), "book");
+    ASSERT_TRUE(BookNode.value().name());
+    EXPECT_STREQ(BookNode.value().name().value().data(), "book");
     const auto PriceNode = BookNode.value().findChild("price");
     ASSERT_TRUE(PriceNode);
-    EXPECT_STREQ(PriceNode.value().name().data(), "price");
+    ASSERT_TRUE(PriceNode.value().name());
+    EXPECT_STREQ(PriceNode.value().name().value().data(), "price");
     const auto NotANode = BookNode.value().findChild("Hello");
     EXPECT_FALSE(NotANode);
 }
@@ -63,7 +67,8 @@ TEST(NodeClass, GetChildren)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto children = Root.value().getChildren();
     ASSERT_TRUE(children);
     EXPECT_EQ(children.value().size(), 12);
@@ -76,15 +81,19 @@ TEST(NodeClass, GetValue)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto PriceNode = Root.value().findChild("price");
     ASSERT_TRUE(PriceNode);
-    EXPECT_STREQ(PriceNode.value().value().c_str(), "42.43");
+    ASSERT_TRUE(PriceNode.value().name());
+    EXPECT_STREQ(PriceNode.value().value().value().c_str(), "42.43");
     EXPECT_EQ(PriceNode.value().valueAsInt(), 42);
     EXPECT_EQ(PriceNode.value().valueAsLong(), 42l);
     EXPECT_EQ(PriceNode.value().valueAsLongLong(), 42ll);
-    EXPECT_FLOAT_EQ(PriceNode.value().valueAsFloat(), 42.43f);
-    EXPECT_DOUBLE_EQ(PriceNode.value().valueAsDouble(), 42.43);
+    ASSERT_TRUE(PriceNode.value().valueAsFloat());
+    EXPECT_FLOAT_EQ(PriceNode.value().valueAsFloat().value(), 42.43f);
+    ASSERT_TRUE(PriceNode.value().valueAsDouble());
+    EXPECT_DOUBLE_EQ(PriceNode.value().valueAsDouble().value(), 42.43);
 }
 
 TEST(NodeClass, GetValueNotANumber)
@@ -93,13 +102,15 @@ TEST(NodeClass, GetValueNotANumber)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto PriceNode = Root.value().findChild("price");
     ASSERT_TRUE(PriceNode);
-    EXPECT_STREQ(PriceNode.value().value().c_str(), "Hello");
-    EXPECT_THROW(std::ignore = PriceNode.value().valueAsInt(), std::invalid_argument);
-    EXPECT_THROW(std::ignore = PriceNode.value().valueAsFloat(), std::invalid_argument);
-    EXPECT_THROW(std::ignore = PriceNode.value().valueAsDouble(), std::invalid_argument);
+    ASSERT_TRUE(PriceNode.value().value());
+    EXPECT_STREQ(PriceNode.value().value().value().c_str(), "Hello");
+    EXPECT_TRUE(PriceNode.value().valueAsInt().has_value() == false);
+    EXPECT_TRUE(PriceNode.value().valueAsFloat().has_value() == false);
+    EXPECT_TRUE(PriceNode.value().valueAsDouble().has_value() == false);
 }
 
 TEST(NodeClass, GetValueOfEmptyNode)
@@ -108,8 +119,10 @@ TEST(NodeClass, GetValueOfEmptyNode)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
-    EXPECT_STREQ(Root.value().value().c_str(), "");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
+    ASSERT_TRUE(Root.value().value());
+    EXPECT_STREQ(Root.value().value().value().c_str(), "");
 }
 
 TEST(NodeClass, GetProperty)
@@ -155,7 +168,8 @@ TEST(NodeClass, GetNamespace)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "ConnectorServices");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "ConnectorServices");
     EXPECT_STREQ(Root.value().getNamespace().first.data(), "ns2");
     EXPECT_STREQ(Root.value().getNamespace().second.data(), "http://ws.gematik.de/conn/ServiceDirectory/v3.1");
 }
@@ -170,7 +184,8 @@ TEST(NodeClass, GetNodeByNamespace)
     const auto nsNode =
         Root.value().findChild("ServiceInformation", "http://ws.gematik.de/conn/ServiceInformation/v2.0");
     ASSERT_TRUE(nsNode);
-    EXPECT_STREQ(nsNode.value().name().data(), "ServiceInformation");
+    ASSERT_TRUE(nsNode.value().name());
+    EXPECT_STREQ(nsNode.value().name().value().data(), "ServiceInformation");
     const auto [ns, uri] = nsNode.value().getNamespace();
     EXPECT_STREQ(ns.data(), "ns3");
     EXPECT_STREQ(uri.data(), "http://ws.gematik.de/conn/ServiceInformation/v2.0");
@@ -182,13 +197,16 @@ TEST(NodeClass, AddNode)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto newNode = Root.value().addChild("price");
     ASSERT_TRUE(newNode);
-    EXPECT_STREQ(newNode.value().name().data(), "price");
+    ASSERT_TRUE(newNode.value().name());
+    EXPECT_STREQ(newNode.value().name().value().data(), "price");
     const auto priceNode = Root.value().findChild("price");
     ASSERT_TRUE(priceNode);
-    EXPECT_STREQ(priceNode.value().name().data(), "price");
+    ASSERT_TRUE(priceNode.value().name());
+    EXPECT_STREQ(priceNode.value().name().value().data(), "price");
 }
 
 TEST(NodeClass, AddValueToNode)
@@ -197,10 +215,13 @@ TEST(NodeClass, AddValueToNode)
     ASSERT_TRUE(DocRes);
     const auto Root = DocRes.value().root();
     ASSERT_TRUE(Root);
-    EXPECT_STREQ(Root.value().name().data(), "catalog");
+    ASSERT_TRUE(Root.value().name());
+    EXPECT_STREQ(Root.value().name().value().data(), "catalog");
     const auto newNode = Root.value().addChild("price");
     ASSERT_TRUE(newNode);
-    EXPECT_STREQ(newNode.value().name().data(), "price");
+    ASSERT_TRUE(newNode.value().name());
+    EXPECT_STREQ(newNode.value().name().value().data(), "price");
     newNode.value().addValue("Hello World!");
-    EXPECT_STREQ(newNode.value().value().c_str(), "Hello World!");
+    ASSERT_TRUE(newNode.value().value());
+    EXPECT_STREQ(newNode.value().value().value().c_str(), "Hello World!");
 }

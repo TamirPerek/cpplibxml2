@@ -86,7 +86,8 @@ TEST(DocClass, dumpXML)
 {
     constexpr auto orgXML = std::string_view{"<root><child>data</child></root>"};
     const auto doc =
-        cpplibxml2::Doc::parse(orgXML, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
+        cpplibxml2::Doc::parse(orgXML, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt |
+                                           cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(doc);
     const auto xml = doc.value().dump();
     ASSERT_TRUE(xml);
