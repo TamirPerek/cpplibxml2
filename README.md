@@ -88,7 +88,7 @@ This project uses GitHub Actions with a matrix build covering:
 
 See the workflow file at `.github/workflows/ci.yml`.
 
-![Build Status](https://github.com/TamirPerek/cpplibxml2/actions/workflows/ci.yml/badge.svg)
+[![CMake on multiple platforms](https://github.com/TamirPerek/cpplibxml2/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/TamirPerek/cpplibxml2/actions/workflows/cmake-multi-platform.yml)
 
 ## Contributing
 
