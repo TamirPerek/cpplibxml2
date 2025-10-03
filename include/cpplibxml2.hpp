@@ -61,13 +61,13 @@ inline ParserOptions operator~(ParserOptions opt)
     return static_cast<ParserOptions>(~static_cast<T>(opt));
 }
 
-inline ParserOptions &operator|=(ParserOptions &lhs, ParserOptions rhs)
+inline ParserOptions &operator|=(ParserOptions &lhs, const ParserOptions rhs)
 {
     lhs = lhs | rhs;
     return lhs;
 }
 
-inline ParserOptions &operator&=(ParserOptions &lhs, ParserOptions rhs)
+inline ParserOptions &operator&=(ParserOptions &lhs, const ParserOptions rhs)
 {
     lhs = lhs & rhs;
     return lhs;
@@ -237,7 +237,7 @@ class Node
     [[nodiscard]] std::expected<long long, InvalidArgument> valueAsLongLong(int base = 10) const;
 
     [[nodiscard]] std::expected<std::pair<std::string_view, std::string_view>, RuntimeError> findProperty(
-        const std::string_view name) const noexcept;
+        std::string_view name) const noexcept;
 
     [[nodiscard]] std::vector<std::pair<std::string_view, std::string_view>> getProperties() const noexcept;
 

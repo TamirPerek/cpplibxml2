@@ -191,7 +191,7 @@ TEST(DocClass, SaveToFile_WritesXMLToFileCorrectly)
     // Lesen und Prüfen
     std::ifstream inFile(tmpFile);
     ASSERT_TRUE(inFile.is_open());
-    std::string fileContent((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    std::string fileContent((std::istreambuf_iterator(inFile)), std::istreambuf_iterator<char>());
 
     // Inhalt sollte das XML enthalten
     EXPECT_NE(fileContent.find("<child>value</child>"), std::string::npos);
@@ -216,7 +216,7 @@ TEST(DocClass, SaveToFile_ISOEncoding)
 
     std::ifstream inFile(tmpFile);
     ASSERT_TRUE(inFile.is_open());
-    std::string fileContent((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    std::string fileContent((std::istreambuf_iterator(inFile)), std::istreambuf_iterator<char>());
 
     // Todo: check why this test case fails!
     // EXPECT_NE(fileContent.find("äöüß"), std::string::npos);
@@ -248,12 +248,12 @@ TEST(DocClass, SaveToFile_FailsIfEmptyDoc)
 TEST(DocClass, SaveToFile_InvalidPath)
 {
     const std::string xmlContent = R"(<root><child>value</child></root>)";
-    auto doc =
+    const auto doc =
         cpplibxml2::Doc::parse(xmlContent, cpplibxml2::ParserOptions::NoError | cpplibxml2::ParserOptions::NoEnt | cpplibxml2::ParserOptions::DtdLoad);
     ASSERT_TRUE(doc.has_value());
 
     // Simuliere ungültigen Pfad
     const auto badPath = std::filesystem::path("/invalid_dir/test_output.xml");
-    auto result = doc->saveToFile(badPath);
+    const auto result = doc->saveToFile(badPath);
     ASSERT_FALSE(result.has_value());
 }

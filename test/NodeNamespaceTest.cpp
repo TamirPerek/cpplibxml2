@@ -3,7 +3,7 @@
 #include "helper.hpp"
 #include <cpplibxml2.hpp>
 
-class NodeNamespaceTest : public ::testing::Test {
+class NodeNamespaceTest : public testing::Test {
 protected:
     void SetUp() override {
         xml = R"(<?xml version="1.0"?><root><child>data</child></root>)";

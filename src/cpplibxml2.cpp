@@ -46,7 +46,7 @@ std::expected<Doc, RuntimeError> Doc::parseFile(const std::filesystem::path &pat
     return result;
 }
 
-std::expected<Doc, RuntimeError> Doc::parse(std::string_view input, ParserOptions options) noexcept
+std::expected<Doc, RuntimeError> Doc::parse(const std::string_view input, ParserOptions options) noexcept
 {
     // Initialize the library and check potential ABI mismatches
     LIBXML_TEST_VERSION
@@ -83,7 +83,7 @@ std::expected<Node, RuntimeError> Doc::root() const noexcept
     rootNode.impl->node = root;
     return rootNode;
 }
-std::expected<std::string, RuntimeError> Doc::dump(bool addWhiteSpaces, Format format) const noexcept
+std::expected<std::string, RuntimeError> Doc::dump(const bool addWhiteSpaces, const Format format) const noexcept
 {
     if (!this->impl->doc)
         return std::unexpected{RuntimeError{"Document is null."}};
@@ -98,8 +98,8 @@ std::expected<std::string, RuntimeError> Doc::dump(bool addWhiteSpaces, Format f
     return result;
 }
 
-std::expected<void, RuntimeError> Doc::saveToFile(const std::filesystem::path &path, bool addWhiteSpaces,
-                                                  Format format) const noexcept
+std::expected<void, RuntimeError> Doc::saveToFile(const std::filesystem::path &path, const bool addWhiteSpaces,
+                                                  const Format format) const noexcept
 {
     if (!this->impl->doc)
         return std::unexpected{RuntimeError{"Document is null."}};
@@ -132,7 +132,7 @@ std::expected<std::string_view, RuntimeError> Node::name() const noexcept
     return std::string_view{reinterpret_cast<const char *>(this->impl->node->name)};
 }
 
-std::expected<Node, RuntimeError> Node::findChild(std::string_view name) const noexcept
+std::expected<Node, RuntimeError> Node::findChild(const std::string_view name) const noexcept
 {
     if (!this->impl->node)
         return std::unexpected{RuntimeError{"Node not found."}};
@@ -151,7 +151,8 @@ std::expected<Node, RuntimeError> Node::findChild(std::string_view name) const n
     return std::unexpected{RuntimeError{"Node not found."}};
 }
 
-std::expected<Node, RuntimeError> Node::findChild(std::string_view name, std::string_view nsUri) const noexcept
+std::expected<Node, RuntimeError> Node::findChild(const std::string_view name,
+                                                  const std::string_view nsUri) const noexcept
 {
     if (!this->impl->node)
         return std::unexpected{RuntimeError{"Node is null."}};
@@ -291,7 +292,7 @@ std::pair<std::string_view, std::string_view> Node::getNamespace() const noexcep
     return {};
 }
 
-std::expected<Node, RuntimeError> Node::addChild(std::string_view name) const noexcept
+std::expected<Node, RuntimeError> Node::addChild(const std::string_view name) const noexcept
 {
     if (!this->impl->node)
         return std::unexpected{RuntimeError{"Node not found."}};
