@@ -1,17 +1,11 @@
 #pragma once
 
 #include "errorTypes.hpp"
+
+#include <libxml/parser.h>
+
 #include <expected>
 #include <functional>
-
-// Forward declaration
-typedef struct _xmlDoc xmlDoc;
-typedef xmlDoc *xmlDocPtr;
-struct _xmlDoc;
-extern "C"
-{
-    void xmlFreeDoc(xmlDocPtr cur);
-}
 
 namespace cpplibxml2
 {
