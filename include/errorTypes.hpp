@@ -16,7 +16,7 @@ class InvalidArgument final : public std::invalid_argument
 {
   public:
     using std::invalid_argument::invalid_argument;
-    explicit InvalidArgument(const invalid_argument &invalid_argument) : std::invalid_argument(invalid_argument.what())
+    explicit InvalidArgument(const invalid_argument &arg) : std::invalid_argument(arg.what())
     {
     }
 };
